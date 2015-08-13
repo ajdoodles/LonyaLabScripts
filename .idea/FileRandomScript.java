@@ -19,7 +19,6 @@ import java.util.Base64;
 
 /**
  * Created by Leonid on 7/20/2015.
- * Ayy lmao
  */
 public class FileRandomScript {
 
