@@ -1,33 +1,28 @@
-
-
-
-
-
-
-
-
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
 import java.util.Base64;
 
 
 /**
- * Created by Leonid on 7/20/2015.
+ * Class containing the logic for the file obfuscation script
+ *
+ * This script is used to obfuscate files during procedures where human readable filenames might lead to human bias.
+ * Running this script in the forward direction will create a temporary directory with copies of all files from a source
+ * directory. The files in the new directory will have their names obfuscated. After the user interacts with the files
+ * in whatever way they need to, running this script in the reverse direction will de-obfuscate the files. The
+ * de-obfuscated files will remain in the new directory to preserve any transformative actions the user may have taken,
+ * and the source files will remain unchanged as backups.
  */
 public class FileRandomScript {
 
+    //TODO: Programmatically set the source directory.
     public static String DIR_PREFIX = "D:\\Users\\Leonid\\Documents\\Science\\";
     public static String MOD_FOLDER = "\\out";
     public static String ORIGINAL_FOLDER = "\\in";
-
-
-
 
     public static void main(String[] args) {
         String firstArguement = args[0];
