@@ -22,15 +22,6 @@ import javax.swing.*;
  */
 public class FileRandomScript {
 
-    //TODO: Programmatically set the source directory.
-    //public static String DIR_PREFIX = "D:\\Users\\Leonid\\Documents\\Science\\";
-    //public static String MOD_FOLDER = "\\out";
-    //public static String ORIGINAL_FOLDER = "\\in";
-
-    public static String DIR_PREFIX = "/home/aduda/Programming/LonyaLabScripts/testFiles";
-    public static String MOD_FOLDER = "/out";
-    public static String ORIGINAL_FOLDER = "/in";
-
     public static void main(String[] args) {
         if (args.length != 1) {
             System.out.println("Please provide only one argument, r or d");
