@@ -139,10 +139,8 @@ public class FileRandomScript {
         } catch (FileAlreadyExistsException e) {
             System.out.println("The File Already Exists");
         } catch (Exception e){
-            System.out.println("Unknown error");
+            System.out.println("Unknown error occured while copying " + inFile.getName() + " to " + outFile.getName());
             e.printStackTrace();
-            e.printStackTrace();
-
         }
     }
 
@@ -155,7 +153,9 @@ public class FileRandomScript {
         try {
             Files.move(inFile.toPath(), outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            System.out.println("IOException occured while moving " + outFile.getName());
+            System.out.println("IOException occured while moving " + outFile.getName() + " to " + outFile.getName());
+        } catch (Exception e) {
+            System.out.println("Unknown error occured while moving " + inFile.getName() + " to " + outFile.getName());
             e.printStackTrace();
         }
     }
