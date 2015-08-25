@@ -5,6 +5,8 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Base64;
+import javax.swing.*;
+
 
 
 /**
@@ -25,6 +27,22 @@ public class FileRandomScript {
     public static String ORIGINAL_FOLDER = "\\in";
 
     public static void main(String[] args) {
+
+        JFileChooser f = new JFileChooser();
+        f.setDialogTitle("Select Input Folder");
+        f.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        f.showSaveDialog(null);
+        File IN_FOLDER = f.getSelectedFile();
+        System.out.println(f.getSelectedFile());
+
+        JFileChooser f2 = new JFileChooser();
+        f2.setDialogTitle("Select Output Folder");
+        f2.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        f2.showSaveDialog(null);
+        File OUT_FOLDER = f2.getSelectedFile();
+        System.out.println(f2.getSelectedFile());
+
+
         String firstArguement = args[0];
         if (!firstArguement.equals("r") && !firstArguement.equals("d")) {
             System.out.println("Please enter r or d");
@@ -38,12 +56,12 @@ public class FileRandomScript {
         }
 
         String inDirSuffix = (firstArguement.equals("r")) ? ORIGINAL_FOLDER : MOD_FOLDER;
-        File inDir = new File(DIR_PREFIX + inDirSuffix);
+        File inDir = IN_FOLDER;
         if (!inDir.exists()){
             inDir.mkdir();
         }
 
-        File outDir = new File(DIR_PREFIX + MOD_FOLDER);
+        File outDir = OUT_FOLDER;
         if (!outDir.exists()){
             outDir.mkdir();
         }
@@ -79,7 +97,7 @@ public class FileRandomScript {
 
         }
 
-            }
+    }
 
 
     public static String genName (String fileName, String direction) {
@@ -106,7 +124,7 @@ public class FileRandomScript {
             System.out.println("The File Already Exists");
         } catch (Exception e){
             System.out.println("Unknown error");
-                e.printStackTrace();
+            e.printStackTrace();
 
         }
     }
