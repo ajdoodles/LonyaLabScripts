@@ -24,8 +24,8 @@ public class FileRandomScript {
 
     //TODO: Programmatically set the source directory.
     //public static String DIR_PREFIX = "D:\\Users\\Leonid\\Documents\\Science\\";
-//    public static String MOD_FOLDER = "\\out";
-//    public static String ORIGINAL_FOLDER = "\\in";
+    //public static String MOD_FOLDER = "\\out";
+    //public static String ORIGINAL_FOLDER = "\\in";
 
     public static String DIR_PREFIX = "/home/aduda/Programming/LonyaLabScripts/testFiles";
     public static String MOD_FOLDER = "/out";
@@ -41,24 +41,6 @@ public class FileRandomScript {
 
         // First decide what direction the user wants us to go
         if (!firstArgument.equals("r") && !firstArgument.equals("d")) {
-
-        JFileChooser f = new JFileChooser();
-        f.setDialogTitle("Select Input Folder");
-        f.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        f.showSaveDialog(null);
-        File IN_FOLDER = f.getSelectedFile();
-        System.out.println(f.getSelectedFile());
-
-        JFileChooser f2 = new JFileChooser();
-        f2.setDialogTitle("Select Output Folder");
-        f2.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        f2.showSaveDialog(null);
-        File OUT_FOLDER = f2.getSelectedFile();
-        System.out.println(f2.getSelectedFile());
-
-
-        String firstArguement = args[0];
-        if (!firstArguement.equals("r") && !firstArguement.equals("d")) {
             System.out.println("Please enter r or d");
             return;
         }
@@ -72,18 +54,8 @@ public class FileRandomScript {
 
         // Set up our input and output targets. If we are randomizing them the output folder will be a separate location
         // from the input folder. If we're derandomizing (de-obfuscating) then we're staying in the same folder.
-        String inDirSuffix = (firstArgument.equals("r")) ? ORIGINAL_FOLDER : MOD_FOLDER;
-        File inDir = new File(DIR_PREFIX + inDirSuffix);
-        String inDirSuffix = (firstArguement.equals("r")) ? ORIGINAL_FOLDER : MOD_FOLDER;
-        File inDir = IN_FOLDER;
-        if (!inDir.exists()){
-            inDir.mkdir();
-        }
-
-        File outDir = OUT_FOLDER;
-        if (!outDir.exists()){
-            outDir.mkdir();
-        }
+        File inDir = getInputDirectory();
+        File outDir = getOutputDirectory(); //TODO: we should be skipping this if we're derandomizing
 
         // Process each file
         File[] listOfInFiles = inDir.listFiles();
@@ -116,8 +88,35 @@ public class FileRandomScript {
         }
     }
 
+    /**
+     * Prompts the user to select the input directory.
+     */
+    private static File getInputDirectory() {
+        System.out.println("Requesting input directory from user.");
+        return getDirectory("Select Input Folder");
     }
 
+    /**
+     * Prompts the user to select the output directory.
+     */
+    private static File getOutputDirectory() {
+        System.out.println("Requesting output directory from user.");
+        return getDirectory("Select Output Folder");
+    }
+
+    /**
+     * Using a {@link JFileChooser}, prompts the user for a directory selection using the given message.
+     * @param message user prompt to guide the user's directory decision
+     */
+    private static File getDirectory(String message) {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle(message);
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        fileChooser.showSaveDialog(null);
+        File tmpFile = fileChooser.getSelectedFile();
+        System.out.println("User selected: " + tmpFile.getAbsolutePath());
+        return tmpFile;
+    }
 
     /**
      * Generate the new name of the given file based on the direction in which we're going.
