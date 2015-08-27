@@ -98,6 +98,7 @@ public class FileRandomScript {
      * Prompts the user to select the output directory.
      */
     private static File getOutputDirectory() {
+        System.out.println("Requesting output directory from user.");
         return getDirectory("Select Output Folder");
     }
 
