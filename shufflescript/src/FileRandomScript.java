@@ -46,7 +46,14 @@ public class FileRandomScript {
         // Set up our input and output targets. If we are randomizing them the output folder will be a separate location
         // from the input folder. If we're derandomizing (de-obfuscating) then we're staying in the same folder.
         File inDir = getInputDirectory();
-        File outDir = getOutputDirectory(); //TODO: we should be skipping this if we're derandomizing
+
+        File outDir;
+        if (firstArgument.equals("r")) {
+            outDir = getOutputDirectory();
+        } else {
+            outDir = inDir;
+        }
+        //TODO: we should be skipping this if we're derandomizing
 
         // Process each file
         File[] listOfInFiles = inDir.listFiles();
@@ -91,7 +98,6 @@ public class FileRandomScript {
      * Prompts the user to select the output directory.
      */
     private static File getOutputDirectory() {
-        System.out.println("Requesting output directory from user.");
         return getDirectory("Select Output Folder");
     }
 
