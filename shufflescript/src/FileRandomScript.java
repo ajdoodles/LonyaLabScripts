@@ -1,3 +1,5 @@
+import com.sun.xml.internal.bind.v2.runtime.output.Encoded;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -5,6 +7,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Base64;
+import java.util.Random;
 import javax.swing.*;
 
 
@@ -123,15 +126,53 @@ public class FileRandomScript {
      * @return final filename
      */
     public static String genName (String fileName, String direction) {
-        String editedName = null;
+        String editedName;
+        String alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        int alphabetlength = alphabet.length();
         if (direction.equals("r")) {
-            byte[] encoded = fileName.getBytes(StandardCharsets.UTF_8);
+            char[] NametoArray = fileName.toCharArray();
+            int NameArrayLength = NametoArray.length;
+            int ExtendedLength = NameArrayLength * 2 + 1;
+            char[] NameforEncoding;
+            NameforEncoding = new char[ExtendedLength];
+            Random NumberGenerator = new Random();
+
+            for (int i = 0; i < NameforEncoding.length; i++) {
+                if (i % 2 == 0) { // We are at an even position (0, 2, ...)
+                    int randomIndex = NumberGenerator.nextInt(alphabetlength);
+                    char randomChar = alphabet.charAt(randomIndex);
+                    NameforEncoding[i] = randomChar;
+                } else { // We are at an odd position
+                    NameforEncoding[i] = NametoArray[i/2];
+                }
+            }
+            String toEncode = new String(NameforEncoding);
+
+
+
+
+            byte[] encoded = toEncode.getBytes(StandardCharsets.UTF_8);
             editedName = Base64.getEncoder().encodeToString(encoded);
             return editedName;
+
         } else {
             byte[] decoded = Base64.getDecoder().decode(fileName);
             String decodedName = new String(decoded, StandardCharsets.UTF_8);
-            return decodedName;
+
+
+            char [] EncodedName = decodedName.toCharArray();
+            int EncodedLength = EncodedName.length;
+            int OriginalLength = (EncodedLength / 2);
+            char [] OriginalName = new char[OriginalLength];
+            for (int i = 0; i < EncodedName.length; i++) {
+                if (i % 2 == 1) {
+                    OriginalName[i-(i/2)-1] = EncodedName[i];
+                }
+            }
+
+            String InitialName = new String(OriginalName);
+
+            return InitialName;
         }
     }
 
