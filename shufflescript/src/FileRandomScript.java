@@ -1,6 +1,8 @@
 import com.sun.xml.internal.bind.v2.runtime.output.Encoded;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
@@ -86,6 +88,13 @@ public class FileRandomScript {
             } else {
                 moveFile(inFile, outFile);
             }
+        }
+        if (firstArgument.equals("r")){
+            csvGeneratorR();
+            csvWriterR();
+
+        } else {
+            csvWriterD();
         }
     }
 
@@ -208,4 +217,34 @@ public class FileRandomScript {
         }
     }
 
+    public static BufferedWriter csvGeneratorR() {
+        String csvName = "Randomization List.csv";
+        BufferedWriter writeF = null;
+        try {
+            FileWriter forwardcsv = new FileWriter(csvName);
+            writeF = new BufferedWriter(forwardcsv);
+            writeF.write("Original Name,");
+            writeF.write("Obfuscated Name,");
+        } catch (IOException ex) {
+            System.out.println("Error Creating .csv");
+        }
+        return writeF;
+
+    }
+
+
+    public static void csvWriterR(String newFileName, BufferedWriter writeF) {
+        try {
+            writeF.newLine();
+            writeF.write(",");
+            writeF.write(newFileName);
+
+
+        } catch (IOException ex) {
+            System.out.println("Error Filling .csv");
+        }
+    }
+    public static void csvWriterD(){
+
+    }
 }
