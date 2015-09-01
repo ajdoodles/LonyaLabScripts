@@ -69,6 +69,10 @@ public class FileRandomScript {
         System.out.println("Beginning process on " + listOfInFiles.length + " files from " + inDir.getAbsolutePath());
         for (File inFile : listOfInFiles) {
             String fileFullName = inFile.getName();
+                if (fileFullName.equals("Randomization_List.csv")){
+                    continue;
+                }
+
             System.out.println("Processing " + fileFullName);
 
             // We only want to obfuscate the filename, the file extension needs to be extracted and added back in later
@@ -86,14 +90,18 @@ public class FileRandomScript {
 
             String newFileName = genName(fileName, firstArgument) + fileExt;
             File outFile = new File(outDir.getAbsoluteFile() + "/" + newFileName);
-            csvWriterR(newFileName, writeF);
             if (firstArgument.equals("r")) {
                 copyFile(inFile, outFile);
+                csvWriterR(newFileName, writeF);
             } else {
                 moveFile(inFile, outFile);
             }
         }
-
+        try {
+            writeF.close();
+        } catch (IOException e) {
+            System.out.println("Error Writing .csv");;
+        }
 
     }
 
@@ -217,14 +225,14 @@ public class FileRandomScript {
     }
 
     public static BufferedWriter csvGeneratorR(String outCSV) {
-        String csvName = "Randomization List.csv";
+        String csvName = "Randomization_List.csv";
         BufferedWriter writeF = null;
         try {
             FileWriter forwardcsv = new FileWriter(outCSV + csvName);
             writeF = new BufferedWriter(forwardcsv);
             writeF.write("Original Name,");
             writeF.write("Obfuscated Name,");
-        } catch (IOException ex) {
+            } catch (IOException ex) {
             System.out.println("Error Creating .csv");
         }
         return writeF;
@@ -237,6 +245,7 @@ public class FileRandomScript {
             writeF.newLine();
             writeF.write(",");
             writeF.write(newFileName);
+
 
 
         } catch (IOException ex) {
