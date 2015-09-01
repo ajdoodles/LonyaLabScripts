@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/LonyaLabScripts.iml" filepath="$PROJECT_DIR$/.idea/LonyaLabScripts.iml" />
+      <module fileurl="file://$PROJECT_DIR$/colloc/colloc.iml" filepath="$PROJECT_DIR$/colloc/colloc.iml" />
       <module fileurl="file://$PROJECT_DIR$/shufflescript/shufflescript.iml" filepath="$PROJECT_DIR$/shufflescript/shufflescript.iml" />
     </modules>
   </component>
