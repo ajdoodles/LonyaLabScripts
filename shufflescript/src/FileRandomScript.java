@@ -1,9 +1,6 @@
 import com.sun.xml.internal.bind.v2.runtime.output.Encoded;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
@@ -34,6 +31,7 @@ public class FileRandomScript {
         }
 
         String firstArgument = args[0];
+        String csvName = "Randomization_List.csv";
 
         // First decide what direction the user wants us to go
         if (!firstArgument.equals("r") && !firstArgument.equals("d")) {
@@ -44,7 +42,7 @@ public class FileRandomScript {
         // Print the direction in which we're going to the user.
         if (firstArgument.equals("r")) {
             System.out.println("Randomizing");
-            } else {
+        } else {
             System.out.println("Derandomizing");
         }
 
@@ -53,13 +51,15 @@ public class FileRandomScript {
         File inDir = getInputDirectory();
 
         File outDir = null;
+        String outCSV = null;
         BufferedWriter writeF = null;
         if (firstArgument.equals("r")) {
             outDir = getOutputDirectory();
-            String outCSV = (outDir.getAbsoluteFile() + "/");
-            writeF = csvGeneratorR(outCSV);
+            outCSV = (outDir.getAbsoluteFile() + "/");
+            writeF = csvGeneratorR(outCSV, csvName);
         } else {
             outDir = inDir;
+            outCSV = (outDir.getAbsoluteFile() + "/");
         }
 
         //TODO: we should be skipping this if we're derandomizing
@@ -69,16 +69,16 @@ public class FileRandomScript {
         System.out.println("Beginning process on " + listOfInFiles.length + " files from " + inDir.getAbsolutePath());
         for (File inFile : listOfInFiles) {
             String fileFullName = inFile.getName();
-                if (fileFullName.equals("Randomization_List.csv")){
-                    continue;
-                }
+            if (fileFullName.equals("Randomization_List.csv")) {
+                continue;
+            }
 
             System.out.println("Processing " + fileFullName);
 
             // We only want to obfuscate the filename, the file extension needs to be extracted and added back in later
             String[] fileNameArray = fileFullName.split("\\.");
             String fileName = fileNameArray[0];
-            for (int i = 1; i < fileNameArray.length - 1; i++){
+            for (int i = 1; i < fileNameArray.length - 1; i++) {
                 fileName += "." + fileNameArray[i];
             }
 
@@ -95,13 +95,14 @@ public class FileRandomScript {
                 csvWriterR(newFileName, writeF);
             } else {
                 moveFile(inFile, outFile);
-                csvWriterD(writeF);
+                csvWriterD(writeF, outCSV, csvName, newFileName);
             }
         }
         try {
             writeF.close();
         } catch (IOException e) {
-            System.out.println("Error Writing .csv");;
+            System.out.println("Error Writing .csv");
+            ;
         }
 
     }
@@ -124,6 +125,7 @@ public class FileRandomScript {
 
     /**
      * Using a {@link JFileChooser}, prompts the user for a directory selection using the given message.
+     *
      * @param message user prompt to guide the user's directory decision
      */
     private static File getDirectory(String message) {
@@ -138,11 +140,12 @@ public class FileRandomScript {
 
     /**
      * Generate the new name of the given file based on the direction in which we're going.
-     * @param fileName filename to alter
+     *
+     * @param fileName  filename to alter
      * @param direction "r" for randomize or "d" for derandomize
      * @return final filename
      */
-    public static String genName (String fileName, String direction) {
+    public static String genName(String fileName, String direction) {
         String editedName;
         String alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         int alphabetlength = alphabet.length();
@@ -160,12 +163,10 @@ public class FileRandomScript {
                     char randomChar = alphabet.charAt(randomIndex);
                     NameforEncoding[i] = randomChar;
                 } else { // We are at an odd position
-                    NameforEncoding[i] = NametoArray[i/2];
+                    NameforEncoding[i] = NametoArray[i / 2];
                 }
             }
             String toEncode = new String(NameforEncoding);
-
-
 
 
             byte[] encoded = toEncode.getBytes(StandardCharsets.UTF_8);
@@ -177,13 +178,13 @@ public class FileRandomScript {
             String decodedName = new String(decoded, StandardCharsets.UTF_8);
 
 
-            char [] EncodedName = decodedName.toCharArray();
+            char[] EncodedName = decodedName.toCharArray();
             int EncodedLength = EncodedName.length;
             int OriginalLength = (EncodedLength / 2);
-            char [] OriginalName = new char[OriginalLength];
+            char[] OriginalName = new char[OriginalLength];
             for (int i = 0; i < EncodedName.length; i++) {
                 if (i % 2 == 1) {
-                    OriginalName[i-(i/2)-1] = EncodedName[i];
+                    OriginalName[i - (i / 2) - 1] = EncodedName[i];
                 }
             }
 
@@ -195,7 +196,8 @@ public class FileRandomScript {
 
     /**
      * Copies the input file to the location of the output file. Informs the user if the file already exists.
-     * @param inFile location of the input file
+     *
+     * @param inFile  location of the input file
      * @param outFile location of the output file
      */
     public static void copyFile(File inFile, File outFile) {
@@ -203,7 +205,7 @@ public class FileRandomScript {
             Files.copy(inFile.toPath(), outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (FileAlreadyExistsException e) {
             System.out.println("The File Already Exists");
-        } catch (Exception e){
+        } catch (Exception e) {
             System.out.println("Unknown error occured while copying " + inFile.getName() + " to " + outFile.getName());
             e.printStackTrace();
         }
@@ -211,7 +213,8 @@ public class FileRandomScript {
 
     /**
      * Copies the input file to the location of the output file. Informs the user if the file already exists.
-     * @param inFile location of the input file
+     *
+     * @param inFile  location of the input file
      * @param outFile location of the output file
      */
     public static void moveFile(File inFile, File outFile) {
@@ -225,18 +228,18 @@ public class FileRandomScript {
         }
     }
 
-    public static BufferedWriter csvGeneratorR(String outCSV) {
-        String csvName = "Randomization_List.csv";
+    public static BufferedWriter csvGeneratorR(String outCSV, String csvName) {
         BufferedWriter writeF = null;
         try {
             FileWriter forwardcsv = new FileWriter(outCSV + csvName);
             writeF = new BufferedWriter(forwardcsv);
             writeF.write("Original Name,");
             writeF.write("Obfuscated Name,");
-            } catch (IOException ex) {
+        } catch (IOException ex) {
             System.out.println("Error Creating .csv");
         }
         return writeF;
+
 
     }
 
@@ -248,12 +251,47 @@ public class FileRandomScript {
             writeF.write(newFileName);
 
 
-
         } catch (IOException ex) {
             System.out.println("Error Filling .csv");
         }
     }
-    public static void csvWriterD(BufferedWriter writeF){
 
+    public static void csvWriterD(BufferedWriter writeF, String outCSV, String csvName, String newFileName) {
+        String line = null;
+        try {
+            FileReader excelreader = new FileReader(outCSV + csvName);
+            BufferedReader reader = new BufferedReader(excelreader);
+            while((line = reader.readLine()) != null) {
+               if (line == "0");{
+                    String readline = reader.readLine();
+                    String[] readlinearray = readline.split(",");
+                    for (int i = 1; i < readlinearray.length - 1; i++) {
+                        writeF.write(readlinearray[i]);
+                        writeF.write(",");
+
+                    }
+                }
+                String readline = reader.readLine();
+                String[] readlinearray = readline.split(",");
+                writeF.write(newFileName);
+                writeF.write(",");
+                for (int i = 1; i < readlinearray.length - 1; i++) {
+                    writeF.write(readlinearray[i]);
+                    writeF.write(",");
+
+                }
+                writeF.newLine();
+            }
+
+        } catch (FileNotFoundException e) {
+            System.out.println("Cannot find Randomization_List.csv");
+        } catch (IOException e) {
+            System.out.println("Can't read");
+        }
+        try {
+            writeF.newLine();
+        } catch (IOException ex) {
+            System.out.println("Error Filling .csv");
+        }
     }
 }
