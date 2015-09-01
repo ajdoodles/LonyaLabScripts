@@ -32,6 +32,7 @@ public class FileRandomScript {
 
         String firstArgument = args[0];
         String csvName = "Randomization_List.csv";
+        String csvNameReverse = "Randomization_List_Final.csv";
 
         // First decide what direction the user wants us to go
         if (!firstArgument.equals("r") && !firstArgument.equals("d")) {
@@ -67,12 +68,15 @@ public class FileRandomScript {
         // Process each file
         File[] listOfInFiles = inDir.listFiles();
         System.out.println("Beginning process on " + listOfInFiles.length + " files from " + inDir.getAbsolutePath());
+        BufferedWriter writeR = null;
         for (File inFile : listOfInFiles) {
             String fileFullName = inFile.getName();
             if (fileFullName.equals("Randomization_List.csv")) {
                 continue;
             }
-
+            if (fileFullName.equals("Randomization_List_Final.csv")) {
+                continue;
+            }
             System.out.println("Processing " + fileFullName);
 
             // We only want to obfuscate the filename, the file extension needs to be extracted and added back in later
@@ -95,16 +99,23 @@ public class FileRandomScript {
                 csvWriterR(newFileName, writeF);
             } else {
                 moveFile(inFile, outFile);
-                csvWriterD(writeF, outCSV, csvName, newFileName);
+                writeR = csvWriterD(outCSV, csvName, newFileName, csvNameReverse);
             }
         }
-        try {
-            writeF.close();
-        } catch (IOException e) {
-            System.out.println("Error Writing .csv");
-            ;
+        if (firstArgument.equals("r")) {
+            try {
+                writeF.close();
+            } catch (IOException e) {
+                System.out.println("Failed to write to csv");
+            }
         }
-
+        if (firstArgument.equals("d")) {
+            try {
+                writeR.close();
+            } catch (IOException e) {
+                System.out.println("Failed to write to csv");
+            }
+        }
     }
 
     /**
@@ -256,9 +267,13 @@ public class FileRandomScript {
         }
     }
 
-    public static void csvWriterD(BufferedWriter writeF, String outCSV, String csvName, String newFileName) {
+    public static BufferedWriter csvWriterD(String outCSV, String csvName, String newFileName, String csvNameReverse) {
         String line = null;
+        BufferedWriter writeR = null;
+
         try {
+            FileWriter reversecsv = new FileWriter(outCSV + csvNameReverse);
+            writeR = new BufferedWriter(reversecsv);
             FileReader excelreader = new FileReader(outCSV + csvName);
             BufferedReader reader = new BufferedReader(excelreader);
             while((line = reader.readLine()) != null) {
@@ -266,21 +281,21 @@ public class FileRandomScript {
                     String readline = reader.readLine();
                     String[] readlinearray = readline.split(",");
                     for (int i = 1; i < readlinearray.length - 1; i++) {
-                        writeF.write(readlinearray[i]);
-                        writeF.write(",");
+                        writeR.write(readlinearray[i]);
+                        writeR.write(",");
 
                     }
                 }
                 String readline = reader.readLine();
                 String[] readlinearray = readline.split(",");
-                writeF.write(newFileName);
-                writeF.write(",");
+                writeR.write(newFileName);
+                writeR.write(",");
                 for (int i = 1; i < readlinearray.length - 1; i++) {
-                    writeF.write(readlinearray[i]);
-                    writeF.write(",");
+                    writeR.write(readlinearray[i]);
+                    writeR.write(",");
 
                 }
-                writeF.newLine();
+                writeR.newLine();
             }
 
         } catch (FileNotFoundException e) {
@@ -289,9 +304,10 @@ public class FileRandomScript {
             System.out.println("Can't read");
         }
         try {
-            writeF.newLine();
+            writeR.newLine();
         } catch (IOException ex) {
             System.out.println("Error Filling .csv");
         }
+        return writeR;
     }
 }
