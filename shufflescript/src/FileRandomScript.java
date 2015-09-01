@@ -44,7 +44,7 @@ public class FileRandomScript {
         // Print the direction in which we're going to the user.
         if (firstArgument.equals("r")) {
             System.out.println("Randomizing");
-        } else {
+            } else {
             System.out.println("Derandomizing");
         }
 
@@ -52,12 +52,16 @@ public class FileRandomScript {
         // from the input folder. If we're derandomizing (de-obfuscating) then we're staying in the same folder.
         File inDir = getInputDirectory();
 
-        File outDir;
+        File outDir = null;
+        BufferedWriter writeF = null;
         if (firstArgument.equals("r")) {
             outDir = getOutputDirectory();
+            String outCSV = (outDir.getAbsoluteFile() + "/");
+            writeF = csvGeneratorR(outCSV);
         } else {
             outDir = inDir;
         }
+
         //TODO: we should be skipping this if we're derandomizing
 
         // Process each file
@@ -82,20 +86,15 @@ public class FileRandomScript {
 
             String newFileName = genName(fileName, firstArgument) + fileExt;
             File outFile = new File(outDir.getAbsoluteFile() + "/" + newFileName);
-
+            csvWriterR(newFileName, writeF);
             if (firstArgument.equals("r")) {
                 copyFile(inFile, outFile);
             } else {
                 moveFile(inFile, outFile);
             }
         }
-        if (firstArgument.equals("r")){
-            csvGeneratorR();
-            csvWriterR();
 
-        } else {
-            csvWriterD();
-        }
+
     }
 
     /**
@@ -217,11 +216,11 @@ public class FileRandomScript {
         }
     }
 
-    public static BufferedWriter csvGeneratorR() {
+    public static BufferedWriter csvGeneratorR(String outCSV) {
         String csvName = "Randomization List.csv";
         BufferedWriter writeF = null;
         try {
-            FileWriter forwardcsv = new FileWriter(csvName);
+            FileWriter forwardcsv = new FileWriter(outCSV + csvName);
             writeF = new BufferedWriter(forwardcsv);
             writeF.write("Original Name,");
             writeF.write("Obfuscated Name,");
