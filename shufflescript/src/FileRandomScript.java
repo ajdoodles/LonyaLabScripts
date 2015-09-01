@@ -95,6 +95,7 @@ public class FileRandomScript {
                 csvWriterR(newFileName, writeF);
             } else {
                 moveFile(inFile, outFile);
+                csvWriterD(writeF);
             }
         }
         try {
@@ -252,7 +253,7 @@ public class FileRandomScript {
             System.out.println("Error Filling .csv");
         }
     }
-    public static void csvWriterD(){
+    public static void csvWriterD(BufferedWriter writeF){
 
     }
 }
