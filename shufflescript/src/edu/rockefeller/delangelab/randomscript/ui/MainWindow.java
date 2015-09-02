@@ -8,7 +8,7 @@ import javax.swing.*;
  * Frame that holds the file obfuscation UI. Nothing interesting here, this is just a system window.
  */
 public class MainWindow extends JFrame {
-    
+
     JPanel mainPanel = new MainPanel();
 
     public MainWindow() {

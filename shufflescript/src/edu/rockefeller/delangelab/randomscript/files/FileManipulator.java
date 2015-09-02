@@ -2,17 +2,7 @@ package edu.rockefeller.delangelab.randomscript.files;
 
 import java.io.File;
 
-/**
- * Class containing the logic for the file obfuscation software
- *
- * This logic is used to obfuscate files during procedures where human readable filenames might lead to human bias.
- * Running this script in the forward direction will create a temporary directory with copies of all files from a source
- * directory. The files in the new directory will have their names obfuscated. After the user interacts with the files
- * in whatever way they need to, running this script in the reverse direction will de-obfuscate the files. The
- * de-obfuscated files will remain in the new directory to preserve any transformative actions the user may have taken,
- * and the source files will remain unchanged as backups. The work of obfuscation is done in
- * {@link #genName(String, String)}
- */
+
 public abstract class FileManipulator {
 
     File inputDirectory, outputDirectory;
@@ -22,8 +12,11 @@ public abstract class FileManipulator {
         this.outputDirectory = outputDirectory;
     }
 
+    /**
+     *  This is where the actual file manipulation loop runs. It will go through each file the input directory, generate
+     *  the new name for the file, and then transfer the file to the output directory under the new name.
+     */
     public void manipulate() {
-        // Process each file
         File[] listOfInFiles = inputDirectory.listFiles();
         System.out.println("Beginning process on " + listOfInFiles.length + " files from " + inputDirectory.getAbsolutePath());
         for (File inFile : listOfInFiles) {
