@@ -92,15 +92,23 @@ public class FileRandomScript {
                 fileExt = "." + fileNameArray[fileNameArray.length - 1];
             }
 
-            String newFileName = genName(fileName, firstArgument) + fileExt;
+
+            String newFileNamenoExt = genName(fileName, firstArgument);
+            String newFileName = newFileNamenoExt + fileExt;
+
+
             File outFile = new File(outDir.getAbsoluteFile() + "/" + newFileName);
             if (firstArgument.equals("r")) {
                 copyFile(inFile, outFile);
-                csvWriterR(newFileName, writeF);
+                csvWriterR(newFileNamenoExt, writeF);
             } else {
                 moveFile(inFile, outFile);
-                writeR = csvWriterD(outCSV, csvName, newFileName, csvNameReverse);
             }
+
+            if (firstArgument.equals("d")){
+                writeR = csvWriterD(outCSV, csvName, csvNameReverse);
+            }
+
         }
         if (firstArgument.equals("r")) {
             try {
@@ -255,11 +263,11 @@ public class FileRandomScript {
     }
 
 
-    public static void csvWriterR(String newFileName, BufferedWriter writeF) {
+    public static void csvWriterR(String newFileNamenoExt, BufferedWriter writeF) {
         try {
             writeF.newLine();
             writeF.write(",");
-            writeF.write(newFileName);
+            writeF.write(newFileNamenoExt);
 
 
         } catch (IOException ex) {
@@ -267,35 +275,53 @@ public class FileRandomScript {
         }
     }
 
-    public static BufferedWriter csvWriterD(String outCSV, String csvName, String newFileName, String csvNameReverse) {
+    public static BufferedWriter csvWriterD(String outCSV, String csvName, String csvNameReverse) {
         String line = null;
-        BufferedWriter writeR = null;
+        BufferedWriter writeD = null;
 
         try {
             FileWriter reversecsv = new FileWriter(outCSV + csvNameReverse);
-            writeR = new BufferedWriter(reversecsv);
+            writeD = new BufferedWriter(reversecsv);
             FileReader excelreader = new FileReader(outCSV + csvName);
             BufferedReader reader = new BufferedReader(excelreader);
-            while((line = reader.readLine()) != null) {
-               if (line == "0");{
-                    String readline = reader.readLine();
-                    String[] readlinearray = readline.split(",");
-                    for (int i = 1; i < readlinearray.length - 1; i++) {
-                        writeR.write(readlinearray[i]);
-                        writeR.write(",");
 
+            String readline = reader.readLine();
+            String[] readlinearray = readline.split(",");
+            for (int i = 0; i < readlinearray.length; i++) {
+                writeD.write(readlinearray[i]);
+                writeD.write(",");
+            }
+                writeD.newLine();
+
+            while((line = reader.readLine()) != null) {
+                String[] linearray = line.split(",");
+                String derandomizeforexcel = linearray[1];
+
+
+                byte[] decoded = Base64.getDecoder().decode(derandomizeforexcel);
+                String decodedName = new String(decoded, StandardCharsets.UTF_8);
+
+
+                char[] EncodedName = decodedName.toCharArray();
+                int EncodedLength = EncodedName.length;
+                int OriginalLength = (EncodedLength / 2);
+                char[] OriginalName = new char[OriginalLength];
+                for (int i = 0; i < EncodedName.length; i++) {
+                    if (i % 2 == 1) {
+                        OriginalName[i - (i / 2) - 1] = EncodedName[i];
                     }
                 }
-                String readline = reader.readLine();
-                String[] readlinearray = readline.split(",");
-                writeR.write(newFileName);
-                writeR.write(",");
-                for (int i = 1; i < readlinearray.length - 1; i++) {
-                    writeR.write(readlinearray[i]);
-                    writeR.write(",");
+
+                String originalexcelname = new String(OriginalName);
+
+                writeD.write(originalexcelname);
+                writeD.write(",");
+                for (int i = 1; i < linearray.length; i++) {
+                    writeD.write(linearray[i]);
+                    writeD.write(",");
 
                 }
-                writeR.newLine();
+                writeD.newLine();
             }
 
         } catch (FileNotFoundException e) {
@@ -304,10 +330,10 @@ public class FileRandomScript {
             System.out.println("Can't read");
         }
         try {
-            writeR.newLine();
+            writeD.newLine();
         } catch (IOException ex) {
             System.out.println("Error Filling .csv");
         }
-        return writeR;
+        return writeD;
     }
 }
