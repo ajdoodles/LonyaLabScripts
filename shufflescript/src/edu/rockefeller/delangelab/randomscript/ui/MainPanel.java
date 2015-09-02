@@ -1,5 +1,6 @@
 package edu.rockefeller.delangelab.randomscript.ui;
 
+import edu.rockefeller.delangelab.randomscript.constants.Constants;
 import edu.rockefeller.delangelab.randomscript.files.FileDeObfuscator;
 import edu.rockefeller.delangelab.randomscript.files.FileObfuscator;
 
@@ -10,27 +11,28 @@ import java.awt.event.ActionListener;
 import java.io.File;
 
 /**
- * Created by aduda on 8/31/15.
+ * Panel holding the file obfuscation UI elements.
  */
 public class MainPanel extends JPanel {
 
-    JButton openButton, saveButton;
-    JTextArea log;
+    JPanel buttonContainer;
+    JButton obfuscationButton, deObfuscationButton;
+    JTextArea logView;
     JFileChooser fileChooser;
 
     public MainPanel() {
         super(new BorderLayout());
 
-        log = new JTextArea(5,20);
-        log.setMargin(new Insets(5, 5, 5, 5));
-        log.setEditable(false);
-        JScrollPane logScrollPane = new JScrollPane(log);
+        initButtonContainer();
+        JScrollPane log = initLogView();
 
-        fileChooser = new JFileChooser();
-        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        add(buttonContainer, BorderLayout.PAGE_START);
+        add(log, BorderLayout.CENTER);
+    }
 
-        openButton = new JButton("Randomize");
-        openButton.addActionListener(new ActionListener() {
+    private void initButtonContainer() {
+        obfuscationButton = new JButton(Constants.OBFUSCATE_BUTTON_TEXT);
+        obfuscationButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 File inDir = getInputDirectory();
@@ -39,10 +41,8 @@ public class MainPanel extends JPanel {
             }
         });
 
-        //Create the save button.  We use the image from the JLF
-        //Graphics Repository (but we extracted it from the jar).
-        saveButton = new JButton("De-Randomize");
-        saveButton.addActionListener(new ActionListener() {
+        deObfuscationButton = new JButton(Constants.DEOBFUSCATE_BUTTON_TEXT);
+        deObfuscationButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 File inDir = getInputDirectory();
@@ -50,18 +50,20 @@ public class MainPanel extends JPanel {
             }
         });
 
-        //For layout purposes, put the buttons in a separate panel
-        JPanel buttonPanel = new JPanel(); //use FlowLayout
-        buttonPanel.add(openButton);
-        buttonPanel.add(saveButton);
+        buttonContainer = new JPanel();
+        buttonContainer.add(obfuscationButton);
+        buttonContainer.add(deObfuscationButton);
+    }
 
-        //Add the buttons and the log to this panel.
-        add(buttonPanel, BorderLayout.PAGE_START);
-        add(logScrollPane, BorderLayout.CENTER);
+    private JScrollPane initLogView() {
+        logView = new JTextArea(5,20);
+        logView.setMargin(new Insets(5, 5, 5, 5));
+        logView.setEditable(false);
+        return new JScrollPane(logView);
     }
 
     private void logLn(String message) {
-        log.append(message + "\n");
+        logView.append(message + "\n");
     }
 
     /**
