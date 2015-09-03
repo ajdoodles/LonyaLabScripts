@@ -5,6 +5,8 @@ package edu.rockefeller.delangelab.randomscript.constants;
  */
 public class Constants {
 
+    public static final String ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
     /**
      * Text that appears in the title bar of the root(system) window.
      */
@@ -13,4 +15,7 @@ public class Constants {
 
     public static final String OBFUSCATE_BUTTON_TEXT = "Obfuscate";
     public static final String DEOBFUSCATE_BUTTON_TEXT = "De-Obfuscate";
+
+    public static final String CSV_FILE_NAME = "Randomization_List.csv";
+    public static final String CSV_FILE_NAME_REVERSE = "Randomization_List_Final.csv";
 }

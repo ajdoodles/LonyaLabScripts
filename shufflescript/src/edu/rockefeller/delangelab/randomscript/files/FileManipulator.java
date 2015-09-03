@@ -1,11 +1,17 @@
 package edu.rockefeller.delangelab.randomscript.files;
 
-import java.io.File;
+import edu.rockefeller.delangelab.randomscript.constants.Constants;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 
 public abstract class FileManipulator {
 
-    File inputDirectory, outputDirectory;
+    final File inputDirectory, outputDirectory;
+    File csvFile;
+    BufferedWriter bufferedWriter;
 
     FileManipulator(File inputDirectory, File outputDirectory) {
         this.inputDirectory = inputDirectory;
@@ -37,7 +43,7 @@ public abstract class FileManipulator {
             }
 
             String newFileName = genName(fileName) + fileExt;
-            File outFile = new File(outputDirectory.getAbsoluteFile() + "/" + newFileName);
+            File outFile = new File(outputDirectory, newFileName);
 
             transferFile(inFile, outFile);
         }
@@ -48,7 +54,7 @@ public abstract class FileManipulator {
      * @param fileName filename to alter
      * @return final filename
      */
-    public abstract String genName(String fileName);
+    abstract String genName(String fileName);
 
-    public abstract void transferFile(File inFile, File outFile);
+    abstract void transferFile(File inFile, File outFile);
 }
