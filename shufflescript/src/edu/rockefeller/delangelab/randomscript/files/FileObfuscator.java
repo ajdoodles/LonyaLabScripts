@@ -61,13 +61,15 @@ public class FileObfuscator extends FileManipulator {
         String toEncode = new String(nameForEncoding);
 
         byte[] encoded = toEncode.getBytes(StandardCharsets.UTF_8);
+        String newName = Base64.getEncoder().encodeToString(encoded);
+        maybeWriteNameToCsv(newName);
         return Base64.getEncoder().encodeToString(encoded);
     }
 
     /**
      * Copies the input file to the location of the output file. Informs the user if the file already exists.
      * @param inFile location of the input file
-     * @param outFile location of the output file
+     * @param outFile location of the out   put file
      */
     @Override
     public void transferFile(File inFile, File outFile) {

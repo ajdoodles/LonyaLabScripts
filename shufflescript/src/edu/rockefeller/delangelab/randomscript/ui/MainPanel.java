@@ -9,6 +9,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Panel holding the file obfuscation UI elements.
@@ -41,7 +42,11 @@ public class MainPanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 File inDir = getInputDirectory();
                 File outDir = getOutputDirectory();
-                new FileObfuscator(inDir, outDir).manipulate();
+                try {
+                    new FileObfuscator(inDir, outDir).manipulate();
+                } catch (IOException e1) {
+                    System.out.println("Unable to Randomize");
+                }
             }
         });
         return tmpButton;
@@ -53,7 +58,11 @@ public class MainPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 File inDir = getInputDirectory();
-                new FileDeObfuscator(inDir).manipulate();
+                try {
+                    new FileDeObfuscator(inDir).manipulate();
+                } catch (IOException e1) {
+                    System.out.println("Unable to Derandomize");
+                }
             }
         });
         return tmpButton;
