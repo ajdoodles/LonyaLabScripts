@@ -15,24 +15,28 @@ import java.io.File;
  */
 public class MainPanel extends JPanel {
 
-    JPanel buttonContainer;
-    JButton obfuscationButton, deObfuscationButton;
-    JTextArea logView;
+    private final JPanel buttonContainer;
+    private final JButton obfuscationButton;
+    private final JButton deObfuscationButton;
+    private final JTextArea logView;
+
     JFileChooser fileChooser;
 
     public MainPanel() {
         super(new BorderLayout());
 
-        initButtonContainer();
-        JScrollPane log = initLogView();
+        obfuscationButton = initObfuscateButton();
+        deObfuscationButton = initDeObfuscateButton();
+        buttonContainer = initButtonContainer();
+        logView = initLogView();
 
         add(buttonContainer, BorderLayout.PAGE_START);
-        add(log, BorderLayout.CENTER);
+        add(new JScrollPane(logView), BorderLayout.CENTER);
     }
 
-    private void initButtonContainer() {
-        obfuscationButton = new JButton(Constants.OBFUSCATE_BUTTON_TEXT);
-        obfuscationButton.addActionListener(new ActionListener() {
+    private JButton initObfuscateButton() {
+        JButton tmpButton = new JButton(Constants.OBFUSCATE_BUTTON_TEXT);
+        tmpButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 File inDir = getInputDirectory();
@@ -40,26 +44,33 @@ public class MainPanel extends JPanel {
                 new FileObfuscator(inDir, outDir).manipulate();
             }
         });
+        return tmpButton;
+    }
 
-        deObfuscationButton = new JButton(Constants.DEOBFUSCATE_BUTTON_TEXT);
-        deObfuscationButton.addActionListener(new ActionListener() {
+    private JButton initDeObfuscateButton() {
+        JButton tmpButton = new JButton(Constants.DEOBFUSCATE_BUTTON_TEXT);
+        tmpButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 File inDir = getInputDirectory();
                 new FileDeObfuscator(inDir).manipulate();
             }
         });
-
-        buttonContainer = new JPanel();
-        buttonContainer.add(obfuscationButton);
-        buttonContainer.add(deObfuscationButton);
+        return tmpButton;
     }
 
-    private JScrollPane initLogView() {
-        logView = new JTextArea(5,20);
-        logView.setMargin(new Insets(5, 5, 5, 5));
-        logView.setEditable(false);
-        return new JScrollPane(logView);
+    private JPanel initButtonContainer() {
+        JPanel tmpPanel = new JPanel();
+        tmpPanel.add(obfuscationButton);
+        tmpPanel.add(deObfuscationButton);
+        return tmpPanel;
+    }
+
+    private JTextArea initLogView() {
+        JTextArea tmpTextArea = new JTextArea(5,20);
+        tmpTextArea.setMargin(new Insets(5, 5, 5, 5));
+        tmpTextArea.setEditable(false);
+        return tmpTextArea;
     }
 
     private void logLn(String message) {
