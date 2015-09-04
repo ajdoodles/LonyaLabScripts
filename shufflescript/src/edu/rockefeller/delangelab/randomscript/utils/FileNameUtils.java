@@ -21,24 +21,21 @@ public class FileNameUtils {
      * @return obfuscated filename
      */
     public static String obfuscate(String fileName) {
-        char[] nameToArray = fileName.toCharArray();
-        int nameArrayLength = nameToArray.length;
-        int extendedLength = nameArrayLength * 2 + 1;
-        char[] nameForEncoding;
-        nameForEncoding = new char[extendedLength];
+        char[] original = fileName.toCharArray();
+        char[] obfuscated = new char[original.length * 2 + 1];
         Random numberGenerator = new Random();
 
-        for (int i = 0; i < nameForEncoding.length; i++) {
+        for (int i = 0; i < obfuscated.length; i++) {
             if (i % 2 == 0) { // We are at an even position (0, 2, ...)
                 int randomIndex = numberGenerator.nextInt(Constants.ALPHABET.length());
                 char randomChar = Constants.ALPHABET.charAt(randomIndex);
-                nameForEncoding[i] = randomChar;
+                obfuscated[i] = randomChar;
             } else { // We are at an odd position
-                nameForEncoding[i] = nameToArray[i / 2];
+                obfuscated[i] = original[i / 2];
             }
         }
-        String toEncode = new String(nameForEncoding);
 
+        String toEncode = new String(obfuscated);
         byte[] encoded = toEncode.getBytes(StandardCharsets.UTF_8);
         return Base64.getEncoder().encodeToString(encoded);
     }
@@ -56,16 +53,12 @@ public class FileNameUtils {
         byte[] decoded = Base64.getDecoder().decode(fileName);
         String decodedName = new String(decoded, StandardCharsets.UTF_8);
 
-        char[] encodedName = decodedName.toCharArray();
-        int encodedLength = encodedName.length;
-        int originalLength = (encodedLength / 2);
-        char[] originalName = new char[originalLength];
-        for (int i = 0; i < encodedName.length; i++) {
-            if (i % 2 == 1) {
-                originalName[i - (i / 2) - 1] = encodedName[i];
-            }
+        char[] obfuscated = decodedName.toCharArray();
+        char[] original = new char[obfuscated.length / 2];
+        for (int i = 1; i < obfuscated.length; i += 2) {
+            original[i / 2] = obfuscated[i];
         }
 
-        return new String(originalName);
+        return new String(original);
     }
 }
