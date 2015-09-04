@@ -54,6 +54,7 @@ public abstract class FileManipulator {
             File outFile = new File(outputDirectory, newFileName);
 
             transferFile(inFile, outFile);
+
         }
     }
 

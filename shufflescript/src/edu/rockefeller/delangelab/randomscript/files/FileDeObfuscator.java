@@ -115,9 +115,30 @@ public class FileDeObfuscator extends FileManipulator{
         }
         try {
             bufferedWriter.newLine();
+            bufferedWriter.close();
+
+
         } catch (IOException ex) {
             System.out.println("Error Filling .csv");
         }
+
+        try {
+            Deleter();
+        } finally {
+
+        }
+
         return bufferedWriter;
+
+
     }
+
+    public void Deleter () {
+        File todelete = new File(this.outputDirectory, Constants.CSV_FILE_NAME);
+        todelete.delete();
+        System.out.println(todelete);
+
+    }
+
+
 }

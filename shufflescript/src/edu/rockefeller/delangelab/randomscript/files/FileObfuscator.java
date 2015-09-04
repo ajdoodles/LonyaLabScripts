@@ -88,6 +88,7 @@ public class FileObfuscator extends FileManipulator {
             bufferedWriter.newLine();
             bufferedWriter.write("," + newFileName);
             bufferedWriter.flush();
+
         } catch (IOException ex) {
             System.out.println("Error Filling .csv");
         }
