@@ -17,9 +17,7 @@ public class UiHandler extends Handler{
 
     @Override
     public void publish(LogRecord record) {
-        System.out.println("HELLO MAYBE PLEASE");
-        String message = getFormatter().format(record);
-        logView.append(message);
+        logView.append(getFormatter().format(record));
     }
 
     @Override
