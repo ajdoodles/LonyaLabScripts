@@ -76,7 +76,7 @@ public class MainPanel extends JPanel {
     }
 
     private JTextArea initLogView() {
-        JTextArea tmpTextArea = new JTextArea(5,20);
+        JTextArea tmpTextArea = new JTextArea(20,100);
         tmpTextArea.setMargin(new Insets(5, 5, 5, 5));
         tmpTextArea.setEditable(false);
         return tmpTextArea;
