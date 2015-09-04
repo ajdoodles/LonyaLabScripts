@@ -27,17 +27,11 @@ public abstract class FileManipulator {
         System.out.println("Beginning process on " + listOfInFiles.length + " files from " + inputDirectory.getAbsolutePath());
         for (File inFile : listOfInFiles) {
             String fileFullName = inFile.getName();
-            if (fileFullName.equals("Randomization_List.csv")) {
+            if (fileFullName.equals(Constants.CSV_FILE_NAME) || fileFullName.equals(Constants.CSV_FILE_NAME_REVERSE)) {
                 continue;
             }
-            if (fileFullName.equals("Randomization_List_Final.csv")) {
-                continue;
-            }
-            System.out.println("Processing " + fileFullName);
 
-
-
-                // We only want to obfuscate the filename, the file extension needs to be extracted and added back in later
+            // We only want to obfuscate the filename, the file extension needs to be extracted and added back in later
             String[] fileNameArray = fileFullName.split("\\.");
             String fileName = fileNameArray[0];
             for (int i = 1; i < fileNameArray.length - 1; i++){

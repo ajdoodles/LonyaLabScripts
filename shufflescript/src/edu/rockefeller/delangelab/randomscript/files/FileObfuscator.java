@@ -69,7 +69,7 @@ public class FileObfuscator extends FileManipulator {
     /**
      * Copies the input file to the location of the output file. Informs the user if the file already exists.
      * @param inFile location of the input file
-     * @param outFile location of the out   put file
+     * @param outFile location of the output file
      */
     @Override
     public void transferFile(File inFile, File outFile) {
