@@ -11,11 +11,17 @@ public class Constants {
      * Text that appears in the title bar of the root(system) window.
      */
     public static final String MAIN_WINDOW_TITLE = "File Obfuscation Script";
-    
 
+    /**
+     * Text for various UI elements
+     */
     public static final String OBFUSCATE_BUTTON_TEXT = "Obfuscate";
     public static final String DEOBFUSCATE_BUTTON_TEXT = "De-Obfuscate";
 
+    /**
+     * CSV related constatnts
+     */
     public static final String CSV_FILE_NAME = "Randomization_List.csv";
     public static final String CSV_FILE_NAME_REVERSE = "Randomization_List_Final.csv";
+    public static final String CSV_TITLE_LINE = "Original Name,Obfuscated Name,";
 }

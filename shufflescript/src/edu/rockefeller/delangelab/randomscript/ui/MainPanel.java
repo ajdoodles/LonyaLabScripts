@@ -51,7 +51,7 @@ public class MainPanel extends JPanel {
                 File inDir = getInputDirectory();
                 File outDir = getOutputDirectory();
                 try {
-                    new FileObfuscator(inDir, outDir).manipulate();
+                    new FileObfuscator(inDir, outDir).run();
                 } catch (IOException exception) {
                     LOGGER.log(Level.SEVERE, "Obfuscation failed", exception);
                 }
@@ -67,7 +67,7 @@ public class MainPanel extends JPanel {
             public void actionPerformed(ActionEvent event) {
                 File inDir = getInputDirectory();
                 try {
-                    new FileDeObfuscator(inDir).manipulate();
+                    new FileDeObfuscator(inDir).run();
                 } catch (IOException exception) {
                     LOGGER.log(Level.SEVERE, "Deobfuscation failed", exception);
                 }

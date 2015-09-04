@@ -1,17 +1,15 @@
 package edu.rockefeller.delangelab.randomscript.files;
 
 import edu.rockefeller.delangelab.randomscript.constants.Constants;
+import edu.rockefeller.delangelab.randomscript.utils.FileNameUtils;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.Base64;
-import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -24,50 +22,21 @@ public class FileObfuscator extends FileManipulator {
 
     public FileObfuscator(File inputDirectory, File outputDirectory) throws IOException {
         super(inputDirectory, outputDirectory);
-        this.csvFile = new File(this.outputDirectory, Constants.CSV_FILE_NAME);
-        this.bufferedWriter = initBufferedWriter();
+        File csvFile = new File(this.outputDirectory, Constants.CSV_FILE_NAME);
+        this.bufferedWriter = initBufferedWriter(csvFile);
     }
 
-    private BufferedWriter initBufferedWriter() throws IOException {
-        BufferedWriter tmpWriter = new BufferedWriter(new FileWriter(csvFile));
-        tmpWriter.write("Original Name,Obfuscated Name,");
+    private BufferedWriter initBufferedWriter(File file) throws IOException {
+        BufferedWriter tmpWriter = new BufferedWriter(new FileWriter(file));
+        tmpWriter.write(Constants.CSV_TITLE_LINE);
         return tmpWriter;
     }
 
     @Override
-    public void manipulate() {
-        super.manipulate();
-        try {
-            bufferedWriter.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
     public String genName(String fileName) {
-        char[] nameToArray = fileName.toCharArray();
-        int nameArrayLength = nameToArray.length;
-        int extendedLength = nameArrayLength * 2 + 1;
-        char[] nameForEncoding;
-        nameForEncoding = new char[extendedLength];
-        Random numberGenerator = new Random();
-
-        for (int i = 0; i < nameForEncoding.length; i++) {
-            if (i % 2 == 0) { // We are at an even position (0, 2, ...)
-                int randomIndex = numberGenerator.nextInt(Constants.ALPHABET.length());
-                char randomChar = Constants.ALPHABET.charAt(randomIndex);
-                nameForEncoding[i] = randomChar;
-            } else { // We are at an odd position
-                nameForEncoding[i] = nameToArray[i / 2];
-            }
-        }
-        String toEncode = new String(nameForEncoding);
-
-        byte[] encoded = toEncode.getBytes(StandardCharsets.UTF_8);
-        String newName = Base64.getEncoder().encodeToString(encoded);
-        maybeWriteNameToCsv(newName);
-        return Base64.getEncoder().encodeToString(encoded);
+        String tmpName = FileNameUtils.obfuscate(fileName);
+        maybeWriteNameToCsv(tmpName);
+        return tmpName;
     }
 
     /**
@@ -91,7 +60,6 @@ public class FileObfuscator extends FileManipulator {
             bufferedWriter.newLine();
             bufferedWriter.write("," + newFileName);
             bufferedWriter.flush();
-
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, "Failed to write csv data for " + newFileName, ex);
         }
