@@ -7,11 +7,15 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Base64;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by aduda on 8/31/15.
  */
 public class FileDeObfuscator extends FileManipulator{
+
+    private static final Logger LOGGER = Logger.getLogger(FileDeObfuscator.class.getName());
 
     public FileDeObfuscator(File directory) throws IOException {
         super(directory, directory);
@@ -58,10 +62,7 @@ public class FileDeObfuscator extends FileManipulator{
         try {
             Files.move(inFile.toPath(), outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            System.out.println("IOException occured while moving " + outFile.getName() + " to " + outFile.getName());
-        } catch (Exception e) {
-            System.out.println("Unknown error occured while moving " + inFile.getName() + " to " + outFile.getName());
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Failed to move " + outFile.getName() + " to " + outFile.getName(), e);
         }
     }
 
@@ -109,9 +110,9 @@ public class FileDeObfuscator extends FileManipulator{
             }
 
         } catch (FileNotFoundException e) {
-            System.out.println("Cannot find Randomization_List.csv");
+            LOGGER.log(Level.SEVERE, "Cannot find " + Constants.CSV_FILE_NAME, e);
         } catch (IOException e) {
-            System.out.println("Can't read");
+            LOGGER.log(Level.SEVERE, "Failed to read " + Constants.CSV_FILE_NAME, e);
         }
         try {
             bufferedWriter.newLine();
@@ -119,7 +120,7 @@ public class FileDeObfuscator extends FileManipulator{
 
 
         } catch (IOException ex) {
-            System.out.println("Error Filling .csv");
+            LOGGER.log(Level.SEVERE, "Failed to write to " + Constants.CSV_FILE_NAME_REVERSE, ex);
         }
 
         try {

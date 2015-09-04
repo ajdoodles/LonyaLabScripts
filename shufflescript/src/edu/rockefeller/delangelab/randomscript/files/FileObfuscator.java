@@ -12,11 +12,15 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.Base64;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Created by aduda on 8/31/15.
  */
 public class FileObfuscator extends FileManipulator {
+
+    private static final Logger LOGGER = Logger.getLogger(FileObfuscator.class.getName());
 
     public FileObfuscator(File inputDirectory, File outputDirectory) throws IOException {
         super(inputDirectory, outputDirectory);
@@ -76,10 +80,9 @@ public class FileObfuscator extends FileManipulator {
         try {
             Files.copy(inFile.toPath(), outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (FileAlreadyExistsException e) {
-            System.out.println("The File Already Exists");
+            LOGGER.log(Level.WARNING, outFile.getName() + " already exists.", e);
         } catch (Exception e){
-            System.out.println("Unknown error occured while copying " + inFile.getName() + " to " + outFile.getName());
-            e.printStackTrace();
+            LOGGER.log(Level.WARNING, "Failed to copy " + inFile.getName() + " to " + outFile.getName(), e);
         }
     }
 
@@ -90,7 +93,7 @@ public class FileObfuscator extends FileManipulator {
             bufferedWriter.flush();
 
         } catch (IOException ex) {
-            System.out.println("Error Filling .csv");
+            LOGGER.log(Level.SEVERE, "Failed to write csv data for " + newFileName, ex);
         }
     }
 }

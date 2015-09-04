@@ -2,12 +2,14 @@ package edu.rockefeller.delangelab.randomscript.files;
 
 import edu.rockefeller.delangelab.randomscript.constants.Constants;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.util.logging.Logger;
 
 
 public abstract class FileManipulator {
+
+    private final static Logger LOGGER = Logger.getLogger(FileManipulator.class.getName());
 
     final File inputDirectory, outputDirectory;
     File csvFile;
@@ -24,7 +26,8 @@ public abstract class FileManipulator {
      */
     public void manipulate() {
         File[] listOfInFiles = inputDirectory.listFiles();
-        System.out.println("Beginning process on " + listOfInFiles.length + " files from " + inputDirectory.getAbsolutePath());
+
+        LOGGER.info("Beginning process on " + listOfInFiles.length + " files from " + inputDirectory.getAbsolutePath());
         for (File inFile : listOfInFiles) {
             String fileFullName = inFile.getName();
             if (fileFullName.equals(Constants.CSV_FILE_NAME) || fileFullName.equals(Constants.CSV_FILE_NAME_REVERSE)) {
