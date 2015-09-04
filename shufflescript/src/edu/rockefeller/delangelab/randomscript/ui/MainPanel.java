@@ -23,7 +23,7 @@ public class MainPanel extends JPanel {
     private final JButton deObfuscationButton;
     private final JTextArea logView;
 
-    JFileChooser fileChooser;
+    private JFileChooser fileChooser;
 
     public static final Logger LOGGER = Logger.getLogger(MainPanel.class.getName());
 

@@ -58,6 +58,7 @@ public class FileDeObfuscator extends FileManipulator{
      * @param inFile location of the input file
      * @param outFile location of the output file
      */
+    @Override
     public void transferFile(File inFile, File outFile) {
         try {
             Files.move(inFile.toPath(), outFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -66,7 +67,7 @@ public class FileDeObfuscator extends FileManipulator{
         }
     }
 
-    public BufferedWriter csvWriterD() {
+    private BufferedWriter csvWriterD() {
         try {
             FileReader excelreader = new FileReader(new File(this.outputDirectory, Constants.CSV_FILE_NAME));
             BufferedReader reader = new BufferedReader(excelreader);
@@ -134,7 +135,7 @@ public class FileDeObfuscator extends FileManipulator{
 
     }
 
-    public void Deleter () {
+   private void Deleter () {
         File todelete = new File(this.outputDirectory, Constants.CSV_FILE_NAME);
         todelete.delete();
         System.out.println(todelete);

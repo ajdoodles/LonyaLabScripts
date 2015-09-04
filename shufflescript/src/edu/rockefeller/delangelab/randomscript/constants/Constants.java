@@ -18,5 +18,4 @@ public class Constants {
 
     public static final String CSV_FILE_NAME = "Randomization_List.csv";
     public static final String CSV_FILE_NAME_REVERSE = "Randomization_List_Final.csv";
-    public static final String LOGGER_NAME = "TEST_LOGGER";
 }

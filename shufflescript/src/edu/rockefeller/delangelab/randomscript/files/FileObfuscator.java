@@ -86,7 +86,7 @@ public class FileObfuscator extends FileManipulator {
         }
     }
 
-    public void maybeWriteNameToCsv(String newFileName) {
+    private void maybeWriteNameToCsv(String newFileName) {
         try {
             bufferedWriter.newLine();
             bufferedWriter.write("," + newFileName);

@@ -9,7 +9,7 @@ import javax.swing.*;
  */
 public class MainWindow extends JFrame {
 
-    JPanel mainPanel = new MainPanel();
+    private final JPanel mainPanel = new MainPanel();
 
     public MainWindow() {
         super(Constants.MAIN_WINDOW_TITLE);
