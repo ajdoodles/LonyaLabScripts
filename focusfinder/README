@@ -1,0 +1,35 @@
+For coloc plugin
+https://imagej.nih.gov/ij/plugins/colocalization.html
+
+In order to slow down the script and see each step individually, change 'setBatchMode(true)` to false in focusfinder macro
+
+Focus Finder Macro Instructions:
+
+Install macro files:
+- Place lib/adapthiveThr_.class and lib/Adjustable_Watershed.class in $FIJI_ROOT/Plugins
+- Place lib/Colocalization.class in $FIJI_ROOT/Plugins/Analyze/
+- Place macros/TIFF_VX.XX.txt, where X.XX is the latest stable version of TIFF. (1.25 at time of writing)
+
+Create Input Folder
+-All files in folder must be of same channel/stack number
+-User needs to know this number, and manually input it later
+-All files will be in either .dv or .tif format
+-Currently input folder needs to be flat, and can only contain files. Anything else will crash the macro
+
+Create empty output folder
+
+Open Fiji
+
+Install Focus Finder Macro:
+-Plugins->Macros->Install...
+-Install focus finder .txt file
+
+Run Focus Finder Macro:
+-Plugins->Macros->The Incredible Focus Finder
+-Generally the default values of things are fine
+-For DAPI channel, go into the .dv or .tif file and find the channel that looks like the DAPI channel (this will whichever channel isn't "dotted" but instead has round light regions)
+-For colocation channels just pick two or three that aren't the DAPI channel. In the future we want this to automatically remove the ability to select the DAPI channel.
+
+Run the excel merger on the output folder
+-This is a python script that merges the output files into some nice output format
+-Haven't gotten it to work yet but this is a secondary step
