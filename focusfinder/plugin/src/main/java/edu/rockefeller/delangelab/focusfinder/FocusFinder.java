@@ -7,6 +7,7 @@ import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
 import java.io.File;
+import java.io.FileFilter;
 
 /**
  * Plugin that provides the focus finder functionality.
@@ -62,6 +63,9 @@ public class FocusFinder implements Command {
     @Parameter(label = "Threshold value for second foci")
     private int secondFociThreshold = -180;
 
+    @Parameter(type = ItemIO.OUTPUT)
+    private String outputMessage = "";
+
     private int numChannels;
     private int dapiChannel;
     private boolean[] channelsToColoc;
@@ -71,6 +75,10 @@ public class FocusFinder implements Command {
         numChannels = Integer.valueOf(numChannelsString);
         dapiChannel = Integer.valueOf(dapiChannelString);
         channelsToColoc = new boolean[] {shouldColoc1, shouldColoc2, shouldColoc3, shouldColoc4};
+
+        for (File file : inputDir.listFiles(new InputFileFilter())) {
+            outputMessage += file.getName() + "\n";
+        }
     }
 
     public static final void main(String[] args) {
