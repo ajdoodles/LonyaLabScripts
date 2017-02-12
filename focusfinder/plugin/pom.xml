@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+        http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.scijava</groupId>
+        <artifactId>pom-scijava</artifactId>
+        <version>12.0.0</version>
+        <relativePath />
+    </parent>
+
+    <groupId>edu.rockefeller.delangelab</groupId>
+    <artifactId>focusfinder</artifactId>
+    <version>0.1</version>
+
+    <name>[MY-PROJECT]</name>
+    <description>[MY-DESCRIPTION]</description>
+    <url>https://github.com/alexjduda/LonyaLabScripts</url>
+    <inceptionYear>2017</inceptionYear>
+    <organization>
+        <name>de Lange Lab</name>
+        <url>delangelab.rockefeller.edu</url>
+    </organization>
+    <licenses>
+        <license>
+            <name>CC0 1.0 Universal License</name>
+            <url>http://creativecommons.org/publicdomain/zero/1.0/</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>alexjduda</id>
+            <name>Alex Duda</name>
+            <roles>
+                <!-- see https://imagej.net/Team -->
+                <role>founder</role>
+                <role>lead</role>
+                <role>developer</role>
+                <role>debugger</role>
+                <role>reviewer</role>
+                <role>support</role>
+                <role>maintainer</role>
+            </roles>
+        </developer>
+    </developers>
+    <contributors>
+        <contributor>
+            <name>None</name>
+        </contributor>
+    </contributors>
+
+    <mailingLists>
+        <mailingList>
+            <name>ImageJ Forum</name>
+            <archive>http://forum.imagej.net/</archive>
+        </mailingList>
+    </mailingLists>
+
+    <scm>
+        <connection>scm:git:git://github.com/alexjduda/LonyaLabScripts</connection>
+        <developerConnection>scm:git:git@github.com:alexjduda/LonyaLabScripts</developerConnection>
+        <tag>HEAD</tag>
+        <url>https://github.com/alexjduda/LonyaLabScripts</url>
+    </scm>
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>http://github.com/alexjduda/LonyaLabScripts/issues</url>
+    </issueManagement>
+    <ciManagement>
+        <system>None</system>
+    </ciManagement>
+
+    <properties>
+        <main-class>edu.rockefeller.delangelab.focusfinder.FocusFinder</main-class>
+        <package-name>edu.rockefeller.delangelab</package-name>
+        <license.licenseName>cc0</license.licenseName>
+        <license.copyrightOwners>N/A</license.copyrightOwners>
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>imagej.public</id>
+            <url>http://maven.imagej.net/content/groups/public</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <!-- ImageJ dependencies -->
+        <dependency>
+            <groupId>net.imagej</groupId>
+            <artifactId>imagej</artifactId>
+        </dependency>
+
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
