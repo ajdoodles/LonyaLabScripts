@@ -8,13 +8,13 @@ import java.io.FileFilter;
  */
 public class InputFileFilter implements FileFilter {
 
-    @Override
-    public boolean accept(File pathname) {
-        if (pathname.isDirectory()) {
-            return false;
-        }
-        String[] tokens = pathname.getName().split("\\.");
-        String extension = tokens[tokens.length-1];
-        return extension.equalsIgnoreCase("dv") || extension.equalsIgnoreCase("tif");
+  @Override
+  public boolean accept(File pathname) {
+    if (pathname.isDirectory()) {
+      return false;
     }
+    String[] tokens = pathname.getName().split("\\.");
+    String extension = tokens[tokens.length-1];
+    return extension.equalsIgnoreCase("dv") || extension.equalsIgnoreCase("tif");
+  }
 }
