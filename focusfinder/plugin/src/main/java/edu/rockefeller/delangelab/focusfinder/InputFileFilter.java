@@ -13,7 +13,6 @@ public class InputFileFilter implements FileFilter {
         if (pathname.isDirectory()) {
             return false;
         }
-        System.out.println("Found file: " + pathname.getName());
         String[] tokens = pathname.getName().split("\\.");
         String extension = tokens[tokens.length-1];
         return extension.equalsIgnoreCase("dv") || extension.equalsIgnoreCase("tif");
