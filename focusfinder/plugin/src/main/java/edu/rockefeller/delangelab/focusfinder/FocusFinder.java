@@ -1,5 +1,11 @@
 package edu.rockefeller.delangelab.focusfinder;
 
+import ij.ImagePlus;
+import ij.plugin.Duplicator;
+import ij.plugin.HyperStackConverter;
+import ij.plugin.RGBStackMerge;
+import loci.formats.FormatException;
+import loci.plugins.BF;
 import net.imagej.ImageJ;
 import org.scijava.ItemIO;
 import org.scijava.command.Command;
@@ -7,7 +13,8 @@ import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 
 import java.io.File;
-import java.io.FileFilter;
+import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * Plugin that provides the focus finder functionality.
@@ -68,17 +75,58 @@ public class FocusFinder implements Command {
 
     private int numChannels;
     private int dapiChannel;
-    private boolean[] channelsToColoc;
+    private boolean[] channelBools;
+    private ArrayList<Integer> colocChannels = new ArrayList<>(3);
 
     @Override
     public void run() {
         numChannels = Integer.valueOf(numChannelsString);
         dapiChannel = Integer.valueOf(dapiChannelString);
-        channelsToColoc = new boolean[] {shouldColoc1, shouldColoc2, shouldColoc3, shouldColoc4};
+        channelBools = new boolean[] {shouldColoc1, shouldColoc2, shouldColoc3, shouldColoc4};
+        for (int channel = 0; channel < channelBools.length; channel++) {
+            if (channelBools[channel]) {
+                colocChannels.add(channel + 1);
+            }
+        }
+
+        Duplicator duplicator = new Duplicator();
+        RGBStackMerge rgbStackMerge = new RGBStackMerge();
 
         for (File file : inputDir.listFiles(new InputFileFilter())) {
-            outputMessage += file.getName() + "\n";
+            ImagePlus imagePlus = openImage(file);
+            ImagePlus hyperStack = HyperStackConverter.toHyperStack(imagePlus, 4, 1, 1, null, "color");
+            ImagePlus dapi = duplicator.run(hyperStack, dapiChannel, dapiChannel, 1, 1, 1, 1);
+
+            for (int firstChannel : colocChannels) {
+                for (int secondChannel : colocChannels) {
+                    if (firstChannel != secondChannel) {
+                        ImagePlus firstFociChannel = duplicator.run(hyperStack, firstChannel, secondChannel, 1, 1, 1, 1);
+                        ImagePlus secondFociChannel = duplicator.run(hyperStack, firstChannel, secondChannel, 1, 1, 1, 1);
+                        ImagePlus composite =
+                            rgbStackMerge.mergeHyperstacks(
+                                new ImagePlus[]{dapi, firstFociChannel, secondFociChannel},
+                                false);
+                        composite.show("Composite channels " + firstChannel + " and " + secondChannel);
+                    }
+                }
+            }
         }
+    }
+
+    private ImagePlus openImage(File file) {
+        ImagePlus image = null;
+        if (file.getName().endsWith(".dv")) {
+            try {
+                image = BF.openImagePlus(file.getAbsolutePath())[0];
+            } catch (FormatException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            image = new ImagePlus(file.getAbsolutePath());
+        }
+        return image;
     }
 
     public static final void main(String[] args) {
