@@ -76,38 +76,48 @@ public class FocusFinder implements Command {
   private int numChannels;
   private int dapiChannel;
   private boolean[] channelBools;
-  private ArrayList<Integer> colocChannels = new ArrayList<>(3);
+  private ArrayList<Integer> colocChannelsIndices = new ArrayList<>();
+  private ArrayList<ImagePlus> colocChannels = new ArrayList<>();
 
   @Override
   public void run() {
-    numChannels = Integer.valueOf(numChannelsString);
-    dapiChannel = Integer.valueOf(dapiChannelString);
-    channelBools = new boolean[] {shouldColoc1, shouldColoc2, shouldColoc3, shouldColoc4};
-    for (int channel = 0; channel < channelBools.length; channel++) {
-      if (channelBools[channel]) {
-        colocChannels.add(channel + 1);
-      }
-    }
-
     Duplicator duplicator = new Duplicator();
     RGBStackMerge rgbStackMerge = new RGBStackMerge();
 
+    numChannels = Integer.valueOf(numChannelsString);
+    dapiChannel = Integer.valueOf(dapiChannelString);
+    channelBools = new boolean[] {shouldColoc1, shouldColoc2, shouldColoc3, shouldColoc4};
+    for (int channelIndex = 0; channelIndex < numChannels; channelIndex++) {
+      int channel = channelIndex + 1;
+      if (channel != dapiChannel && channelBools[channelIndex]) {
+        colocChannelsIndices.add(channel);
+      }
+    }
+
     for (File file : inputDir.listFiles(new InputFileFilter())) {
+      outputMessage += "Beginning colocalization of " + file.getName() + "\n";
+
       ImagePlus imagePlus = openImage(file);
       ImagePlus hyperStack = HyperStackConverter.toHyperStack(imagePlus, 4, 1, 1, null, "color");
       ImagePlus dapi = duplicator.run(hyperStack, dapiChannel, dapiChannel, 1, 1, 1, 1);
 
-      for (int firstChannel : colocChannels) {
-        for (int secondChannel : colocChannels) {
-          if (firstChannel != secondChannel) {
-            ImagePlus firstFociChannel = duplicator.run(hyperStack, firstChannel, secondChannel, 1, 1, 1, 1);
-            ImagePlus secondFociChannel = duplicator.run(hyperStack, firstChannel, secondChannel, 1, 1, 1, 1);
-            ImagePlus composite =
-                rgbStackMerge.mergeHyperstacks(
-                    new ImagePlus[]{dapi, firstFociChannel, secondFociChannel},
-                    false);
-            composite.show("Composite channels " + firstChannel + " and " + secondChannel);
-          }
+      // Extract each channel for colocalization
+      colocChannels.clear();
+      for (int channelIndex : colocChannelsIndices) {
+        colocChannels.add(duplicator.run(hyperStack, channelIndex, channelIndex, 1, 1, 1, 1));
+      }
+
+      outputMessage += "Extracted " + (colocChannels.size() + 1) + " channels: ";
+      outputMessage += "dapi(" + dapiChannel + ") and colocChannels " + colocChannelsIndices.toString() + "\n";
+
+      for (int i = 0; i < colocChannels.size() - 1; i++) {
+        for (int j = i+1; j < colocChannels.size(); j ++) {
+          ImagePlus composite =
+              rgbStackMerge.mergeHyperstacks(new ImagePlus[]{colocChannels.get(i), colocChannels.get(j), dapi}, true);
+          composite.show("Composite channels " + i + " and " + j);
+
+          outputMessage += "Created composite of channels dapi(" + dapiChannel + "), ";
+          outputMessage += colocChannelsIndices.get(i) + " and " + colocChannelsIndices.get(j) + "\n";
         }
       }
     }
