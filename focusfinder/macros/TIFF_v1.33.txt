@@ -320,58 +320,54 @@ close();
 
 if (channel_number != 2){
 
-selectWindow("Red");
-run("8-bit");
-run("Despeckle");
+   selectWindow("Red");
+   run("8-bit");
+   run("Despeckle");
 
-if (second_autocontrastfull == 1) {
+   // this block should be athe autocontrast command, but it's bugged
+   // so do this instead
+   // counting all pixels 
+   // make hist, put pixles in bins
+   // find low point and high point
+   // setting all values to be high point and low point
+   // apply second foci to second channel (red)
 
-// this block should be athe autocontrast command, but it's bugged
-// so do this instead
-// counting all pixels 
-// make hist, put pixles in bins
-// find low point and high point
-// setting all values to be high point and low point
+   //autocontrast
+   if (second_autocontrastfull == 1) {
+      AUTO_THRESHOLD = 5000;
+      getRawStatistics(pixcount);
+      limit = pixcount/10;
+      threshold = pixcount/AUTO_THRESHOLD;
+      nBins = 256;
+      getHistogram(values, histA, nBins);
+      i = -1;
+      found = false;
+      do {
+      	 counts = histA[++i];
+      	 if (counts > limit) counts = 0;
+      	 found = counts > threshold;
+      } while ((!found) && (i < histA.length-1))
+      hmin = values[i];
+      i = histA.length;
+      do {
+      	 counts = histA[--i];
+      	 if (counts > limit) counts = 0;
+      	 found = counts > threshold;
+      } while ((!found) && (i > 0))
+      hmax = values[i];
+      setMinAndMax(hmin, hmax);
+      //print(hmin, hmax);
+      run("Apply LUT");
+   } else {
+     setMinAndMax(second_autocontrastmin, second_autocontrastmax);
+     run("Apply LUT");
+   }
 
-// apply second foci to second channel (red)
-
-//autocontrast
-AUTO_THRESHOLD = 5000; 
- getRawStatistics(pixcount); 
- limit = pixcount/10; 
- threshold = pixcount/AUTO_THRESHOLD; 
- nBins = 256; 
- getHistogram(values, histA, nBins); 
- i = -1; 
- found = false; 
- do { 
-         counts = histA[++i]; 
-         if (counts > limit) counts = 0; 
-         found = counts > threshold; 
- } while ((!found) && (i < histA.length-1)) 
- hmin = values[i]; 
- i = histA.length; 
- do { 
-
-         counts = histA[--i]; 
-         if (counts > limit) counts = 0; 
-         found = counts > threshold; 
- } while ((!found) && (i > 0)) 
- hmax = values[i]; 
- setMinAndMax(hmin, hmax); 
- //print(hmin, hmax); 
-run("Apply LUT");
-}   
-
-else {
-setMinAndMax(second_autocontrastmin, second_autocontrastmax);
-run("Apply LUT");
+   run("Auto Local Threshold", "method=Mean radius=500 parameter_1=second_thresh parameter_2=0 white"); //Thresholding for second
+   run("Convert to Mask");
+   run("Make Binary");
 }
 
-run("Auto Local Threshold", "method=Mean radius=500 parameter_1=second_thresh parameter_2=0 white"); //Thresholding for second
-run("Convert to Mask");
-run("Make Binary");
-}
 
 selectWindow("Green");
 run("8-bit");
@@ -418,34 +414,43 @@ run("Auto Local Threshold", "method=Mean radius=500 parameter_1=first_thresh par
 run("Convert to Mask");
 run("Make Binary"); 
 
+//The above block find the foci using local thresholding, and basically does a threshold in a radius of 500 pixels. The method of thresholding is using the mean formula. In short, every pixel in a radius of 500 is averaged, and then pixels above that average
+//are assigned a value of 255 and below that value are assigned a value of 0. parameter 1 is a constant that is subtracted from the mean, so you can tweak it. There is no parameter 2, which is why it is 0. 
+//Convert to Mask is the save step of the thresholding, and make binary is probably redundant, but I keep it just in case.
 
+if (channel_number != 2) {
+   run("Merge Channels...", "red=Red green=Green blue=*None* gray=*None* create");
+   selectWindow("Composite");
+   run("Stack to RGB");
+   run("Split Channels");
+   selectWindow("Composite (RGB) (blue)");
+   close();
+} else {
+  run("Merge Channels...", "red=Green green=Green blue=*None* gray=*None* create");
+  selectWindow("Composite");
+  run("Stack to RGB");
+  run("Split Channels");
+  selectWindow("Composite (RGB) (blue)");
+  close();
+  selectWindow("Composite (RGB) (red)");
+  close();
+}
 
+// replace this with variable later, this is only here to select the correct window
 
- /// =================== stopped here for now ===============================
+//We merge the red and green channels that we processed with thresholding. Then we split it again and discard the blue channel that is made as a result of the merge and split (since it is blank anyway). The real purpose of this operation is to get consistent image names.
+//This is somewhat redundant we can make proper image names otherwise, but whatever. We can deal with this at your leisure.
+//If we had two channels, we do the same as in first block but we close the blue AND red channel since they are blank. Remember, we only had the green when we do two channel counting
+
 if (channel_number != 2){
-     run("Merge Channels...", "red=Red green=Green blue=*None* gray=*None* create");
-selectWindow("Composite");
-run("Stack to RGB");
-run("Split Channels");
-selectWindow("Composite (RGB) (blue)");
-close();
+   run("Colocalization ", "channel_1=[Composite (RGB) (red)] channel_2=[Composite (RGB) (green)] ratio=30 threshold_channel_1=15 threshold_channel_2=15 display=255  colocalizated");
 }
 
-else {
-	run("Merge Channels...", "red=Green green=Green blue=*None* gray=*None* create");
-	selectWindow("Composite");
-run("Stack to RGB");
-run("Split Channels");
-selectWindow("Composite (RGB) (blue)");
-close();
-selectWindow("Composite (RGB) (red)");
-close();
-}
+// These inputs are just the "renamed" marges from earlier, the ones that we only needed 
 
-
-if (channel_number != 2){
-run("Colocalization ", "channel_1=[Composite (RGB) (red)] channel_2=[Composite (RGB) (green)] ratio=30 threshold_channel_1=15 threshold_channel_2=15 display=255  colocalizated");
-}
+//This is the colocalization plugin that we may want to reverse engineer. Basically you pick two images (which we do here), specificy some parameters for how it selects the foci (ratio is the ratio of overlap to count as a colocalization
+//the other values are minumum amount of each channel in the colocalization spot I believe. It might be worthwile to have a way for advanced users to change these values. Then just tell it to go. What it does is find where things overlap. 
+//It outputs a few things, it spits out a two channel image with three colors (I think, I haven't looked in a while) where the overlapping points have a value.
 
 // If triple colloc then go bcak and add in third channel
 if (channel_number == 4 && triple_coloc == 1){
@@ -530,19 +535,8 @@ if (channel_number == 4 && triple_coloc == 1){
 			
 			}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+//The above block is for the three way colocalization. Basically we convert the output of the first colocalization run into a binary image where only the regions of overlap have a value. We then reopen the original image we were supplied at the very very beginning
+// but this time we keep the channel we threw away. We then process it as before and then do the colocalization again, except this time on the third channel image we processed and the product of the first colocalization.
 
 selectWindow("Blue");
 run("Convert to Mask");
@@ -550,6 +544,13 @@ run("Make Binary");
 run("Adjustable Watershed", "tolerance=4");
 run("Analyze Particles...", "size=1000-infinity pixel circularity=0.00-1.00 show=[Bare Outlines] display add");
 
+//Here we work with the blue channel. The mask and binary is probably redundant as it should have been done in the previous step, but I haven't every tested removing those lines here. The watershed function is a way to split objects that 
+// SHOULD be seperate, but are actually stuck together. Imagine two oranges on the table; now lay them in such a manner that they touch. You know there are two oranges, but if you were to outline them with a pencil, you would have one object.
+// This is a mathematical way to determine where objects should be split. The tolerance is a parameter used in the equation. Basically it models water flowing from the ends, and if water touches water before it touches the other end, there should be a break.
+// The analyze particles is the function that selects the objects you have found. Basically at this point we have a bunch of round (or nearly round) blobs that are nuclei, and this function tells FIJI to find "Particles" with the stated parameters and select them.
+//The size is in pixels (specified by pixel), and there is a circularity parameter. show is how you want the select to be displayed (do you want them to be numbered?, outlined? etc etc), summarize creates a table with summary statistics (this has been removed in 1.33)
+// Display means it will open the result of its analysis (in this case, outlines) in a new window. Add means it will add the shapes it found to the ROI manager. The ROI manager is a region of interest manager, which basically stores objects you marked, and 
+// most importantly, can be used to overlay.
 
 if (channel_number != 2){
 selectWindow("Colocalizated points (RGB) ");
@@ -563,6 +564,16 @@ run("Clear Results");
 roiManager("Measure");
 IJ.renameResults("Foci Colocalization");
 
+// If we have more than 2 channels, we have done colocalization, so we must count what we have found in the colocalization window. To do this, we use the binary command to leave only the regions that have overlap, then we use the analyze particles
+// command to find and select them. Here we use different parameters from above. This is because above, true nuclei are large, if it is too small it picks up garbage. Here, large colocalizations are probably garbage, while a colocalization of only 1 pixel is
+// likely to be spurious. In general, we should have an advanced settings tab to allow the user to change these parameters if they know WHY they are doing it. Otherwise you need to go into the code. Fill holes is a command to make sure that there are not donuts in the
+//spots we found, as this will mess with the proper counting. Next we use the find maxima function on the particles we found. This opens a new window with each particle we found being converted into a single pixel. We do this to take advantage of a trick which I 
+// will explain. A single pixel in a binary image has a value of 255. Therefore, if count the total intensity on the image (or in a nucleus which we overlayed, but we haven't gotten there yet), we will get # of pixels x 255. However, if we tried to do this with the
+//particles we found we would get a different value, since they all might have a different area. Some might be large, others small. Therefore, we convert each one to a single pixel (the find maxima step). Now when we count we get what is essentially
+// number of particles found x 255. Later in the excel sheets, we simple divide the output by 255 to get the number of colocalizations or foci found. The next step is to use the ROI manager to overlay ALL the nuclei from the blue channel (which we found and added).
+// We make the ROI Manager select everything twice, because it is finicky and you want it to deselect and then reselect to make sure (and this is the way you do it I think. At least this is guaranteed to work). That is why you have the weird double command. Next you
+// want to make sure your results table is clear from any previous data, and finally you tell FIJI to measure everything in the ROIs overlayed on our image (in this case the colocalized points). Now recall that we had told it as the very first command to only 
+// measure integratedArea. This means it will take the value of the pixels in the ROI. So 255 x the number of particles it found! renameresults renames the results window to something different, and prevents it from getting overwritten and deleted.
 
 selectWindow("Composite (RGB) (red)");
 run("Make Binary");
@@ -576,6 +587,7 @@ roiManager("Measure");
 IJ.renameResults("Red Foci");
 }
 
+//Same as above but with the red channel. This is just counting the number of foci in the red channel, not colocalizations.
 
 selectWindow("Composite (RGB) (green)");
 run("Make Binary");
@@ -587,6 +599,8 @@ roiManager("Show All");
 run("Clear Results");
 roiManager("Measure");
 IJ.renameResults("Green Foci");
+
+//Same as above but with the green channel
 
 if (channel_number == 4 && triple_coloc == 1) {
 selectWindow("third_proc");
@@ -602,6 +616,7 @@ IJ.renameResults("Third Foci");
 
 }
 
+//Same as above but with the third channel if it was a 4 channel image and they told me to do 3 channels.
 
 selectWindow("Green Foci");
 			nameG = "First Foci"; 
@@ -609,7 +624,10 @@ selectWindow("Green Foci");
 			if (index!=-1) nameG = substring(nameG, 0, index); 
 			nameG = nameG + ".csv"; // Change here for put a different name
 			saveAs("Measurements", Telosave+list[n]+ " " +nameG); 
-			
+
+// Here we are saving the results tables into csv format. We also have some poorly coded method for numbering the files so that we can tell what is what later. Measurements tells it to save it as data I assume, however I can no longer find such a command.
+//It is possible it is the archaic form of "Results". But it works, so I haven't changed it.
+
 if (channel_number != 2){			
 selectWindow("Red Foci");
 			nameR = "Second Foci"; 
@@ -617,7 +635,9 @@ selectWindow("Red Foci");
 			if (index!=-1) nameR = substring(nameR, 0, index); 
 			nameR = nameR + ".csv"; // Change here for put a different name
 			saveAs("Measurements", BP1save+list[n]+ " " +nameR); 
-			
+
+// Same
+
 selectWindow("Foci Colocalization");
 			nameC = "Foci Colocalization Count"; 
 			index = lastIndexOf(nameC, "."); 
@@ -627,6 +647,8 @@ selectWindow("Foci Colocalization");
 			filenameIndex++;
 }
 
+// Same
+
 if (channel_number == 4 && triple_coloc == 1){
 	selectWindow("Third Foci");
 			nameT = "Third Foci"; 
@@ -635,13 +657,18 @@ if (channel_number == 4 && triple_coloc == 1){
 			nameT = nameT + ".csv"; // Change here for put a different name
 			saveAs("Measurements", Thirdsave+list[n]+ " " +nameT); 
 
+// Same
+
 selectWindow("third_proc");
 run("Invert LUT");
+//Remember where we had the black background stuff? We now need to undo this here for this guy. I am not entirely sure why, but somehow it ended up that way. So I fixed it. 
+// Perhaps you can tell that when doing this I was more focused on something that worked than pretty or entirely logical.
 run("Cyan");
+//This is just to make it another color visually for people to be able to see their images properly.
 selectWindow("Composite");
 run("Split Channels");
 run("Merge Channels...", "c1=C1-Composite c2=C2-Composite c5=third_proc create");
-
+//Here we merge all three channels of the foci we found in the 3-way setting into one image. We save this file later. This is so people can check up on how the program did.
 }
 
 
@@ -649,10 +676,14 @@ selectWindow("Composite");
 	nameD = "Foci Colocalization Image";
 	saveAs("Tiff", Imagesave+list[n]+ " " +nameD);
 
+//Here we save it. We always save this no matter the channels. Basically it just shows the points we found.
+
 selectWindow("Drawing of Blue");
 	nameB = "Nuclei Image";
 	saveAs("Tiff", Nucleisave+list[n]+ " " +nameB);
 	
+
+//Drawing of blue is the output of the analyze particles. We save this so people can see if it did a good job of finding nuclei.
 
 array1 = newArray("0");; 
 for (i=1;i<roiManager("count");i++){ 
@@ -661,24 +692,27 @@ for (i=1;i<roiManager("count");i++){
 roiManager("select", array1); 
 roiManager("Delete");
 
+//This clears all the stuff in the ROI manager. If you just close it and reopen it, it will still have the ROIs.
+
 run("Close All");
 if (isOpen("ROI Manager")) {
      selectWindow("ROI Manager");
      run("Close");
 }
 
+//Here we close all the open IMAGE!!! windows, then close the ROI manager. The ROI manager is a special window so we need to close it like that. Don't ask why. You can't do it otherwise. You can never select it. Its stupid. I know. This is how it is.
 
+call("java.lang.System.gc");
 
-call("java.lang.System.gc"); 
+//Some trash cleaning i think. It is here for the same reason the other trash cleaning is.
 
 closelist = getList("window.titles"); 
      for (x=0; x<closelist.length; x++){ 
      winame = closelist[x]; 
       selectWindow(winame); 
      run("Close");
-     } 
-
-
+     }
+//Here we close anything else that may be open and wasn't closed by the closeall function.
 
 } 
 
@@ -726,6 +760,9 @@ if (isOpen("Log")) {
      } 
 
 }
+
+//Here we just save all the values that the person used for their analysis to make sure they have a record.
+
 exit
 
 
