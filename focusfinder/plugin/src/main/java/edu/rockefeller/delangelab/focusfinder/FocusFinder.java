@@ -2,8 +2,8 @@ package edu.rockefeller.delangelab.focusfinder;
 
 import ij.ImagePlus;
 import ij.plugin.Duplicator;
-import ij.plugin.HyperStackConverter;
 import ij.plugin.RGBStackMerge;
+import ij.process.StackConverter;
 import loci.formats.FormatException;
 import loci.plugins.BF;
 import net.imagej.ImageJ;
@@ -14,7 +14,8 @@ import org.scijava.plugin.Plugin;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Plugin that provides the focus finder functionality.
@@ -74,10 +75,10 @@ public class FocusFinder implements Command {
   private String outputMessage = "";
 
   private int numChannels;
-  private int dapiChannel;
+  private int dapiChannelNum;
   private boolean[] channelBools;
-  private ArrayList<Integer> colocChannelsIndices = new ArrayList<>();
-  private ArrayList<ImagePlus> colocChannels = new ArrayList<>();
+  private ImagePlus dapiChannel;
+  private Map<Integer, ImagePlus> channels;
 
   @Override
   public void run() {
@@ -85,41 +86,30 @@ public class FocusFinder implements Command {
     RGBStackMerge rgbStackMerge = new RGBStackMerge();
 
     numChannels = Integer.valueOf(numChannelsString);
-    dapiChannel = Integer.valueOf(dapiChannelString);
+    dapiChannelNum = Integer.valueOf(dapiChannelString);
     channelBools = new boolean[] {shouldColoc1, shouldColoc2, shouldColoc3, shouldColoc4};
-    for (int channelIndex = 0; channelIndex < numChannels; channelIndex++) {
-      int channel = channelIndex + 1;
-      if (channel != dapiChannel && channelBools[channelIndex]) {
-        colocChannelsIndices.add(channel);
-      }
-    }
+    channels = new HashMap<>(numChannels - 1);
 
     for (File file : inputDir.listFiles(new InputFileFilter())) {
       outputMessage += "Beginning colocalization of " + file.getName() + "\n";
 
-      ImagePlus imagePlus = openImage(file);
-      ImagePlus hyperStack = HyperStackConverter.toHyperStack(imagePlus, 4, 1, 1, null, "color");
-      ImagePlus dapi = duplicator.run(hyperStack, dapiChannel, dapiChannel, 1, 1, 1, 1);
+      ImagePlus original = openImage(file);
 
-      // Extract each channel for colocalization
-      colocChannels.clear();
-      for (int channelIndex : colocChannelsIndices) {
-        colocChannels.add(duplicator.run(hyperStack, channelIndex, channelIndex, 1, 1, 1, 1));
-      }
+      new StackConverter(original).convertToGray32();
 
-      outputMessage += "Extracted " + (colocChannels.size() + 1) + " channels: ";
-      outputMessage += "dapi(" + dapiChannel + ") and colocChannels " + colocChannelsIndices.toString() + "\n";
-
-      for (int i = 0; i < colocChannels.size() - 1; i++) {
-        for (int j = i+1; j < colocChannels.size(); j ++) {
-          ImagePlus composite =
-              rgbStackMerge.mergeHyperstacks(new ImagePlus[]{colocChannels.get(i), colocChannels.get(j), dapi}, true);
-          composite.show("Composite channels " + i + " and " + j);
-
-          outputMessage += "Created composite of channels dapi(" + dapiChannel + "), ";
-          outputMessage += colocChannelsIndices.get(i) + " and " + colocChannelsIndices.get(j) + "\n";
+      // Extract all channels.
+      dapiChannel = duplicator.run(original, dapiChannelNum, dapiChannelNum, 1, 1, 1, 1);
+      for (int channelIndex = 0; channelIndex < numChannels; channelIndex++) {
+        int channel = channelIndex + 1;
+        if (channel != dapiChannelNum) {
+          channels.put(channel, duplicator.run(original, channel, channel, 1, 1, 1, 1));
         }
       }
+
+      outputMessage += "Extracted " + (channels.size() + 1) + " channels: ";
+      outputMessage += "dapi(" + dapiChannelNum + ") and channels " + channels.keySet().toString() + "\n";
+
+      showAllChannels();
     }
   }
 
@@ -137,6 +127,13 @@ public class FocusFinder implements Command {
       image = new ImagePlus(file.getAbsolutePath());
     }
     return image;
+  }
+
+  private void showAllChannels() {
+    dapiChannel.show("DAPI Channel (" + dapiChannelNum + ")");
+    for (Map.Entry<Integer, ImagePlus> channelEntry : channels.entrySet()) {
+      channelEntry.getValue().show("Channel: " + channelEntry.getKey().toString());
+    }
   }
 
   public static final void main(String[] args) {
