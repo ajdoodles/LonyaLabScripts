@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * Plugin that provides the focus finder functionality.
  */
-@Plugin(type = Command.class, menuPath = "Plugins>Focus Finder")
+@Plugin(type = Command.class)
 public class FocusFinder implements Command {
 
   @Parameter(label = "Input Directory", style = "directory")
