@@ -1,8 +1,13 @@
 package edu.rockefeller.delangelab.focusfinder;
 
 import ij.ImagePlus;
+import ij.ImageStack;
 import ij.plugin.Duplicator;
+import ij.plugin.ImageCalculator;
 import ij.plugin.RGBStackMerge;
+import ij.plugin.filter.ImageMath;
+import ij.plugin.filter.RankFilters;
+import ij.process.ImageProcessor;
 import ij.process.StackConverter;
 import loci.formats.FormatException;
 import loci.plugins.BF;
@@ -84,6 +89,8 @@ public class FocusFinder implements Command {
   public void run() {
     Duplicator duplicator = new Duplicator();
     RGBStackMerge rgbStackMerge = new RGBStackMerge();
+    RankFilters filters = new RankFilters();
+    ImageCalculator calculator = new ImageCalculator();
 
     numChannels = Integer.valueOf(numChannelsString);
     dapiChannelNum = Integer.valueOf(dapiChannelString);
@@ -109,7 +116,12 @@ public class FocusFinder implements Command {
       outputMessage += "Extracted " + (channels.size() + 1) + " channels: ";
       outputMessage += "dapi(" + dapiChannelNum + ") and channels " + channels.keySet().toString() + "\n";
 
-      showAllChannels();
+      // Subtract the result of a median filter from each non-dapi channel.
+      for (Map.Entry<Integer, ImagePlus> channelEntry : channels.entrySet()) {
+        ImagePlus median = duplicator.run(channelEntry.getValue());
+        filters.rank(median.getProcessor(), 10, RankFilters.MEDIAN);
+        calculator.run("subtract create", channelEntry.getValue(), median).show();
+      }
     }
   }
 
